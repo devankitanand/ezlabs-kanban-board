@@ -11,7 +11,6 @@ interface Props {
 }
 
 function TaskCard({ task, deleteTask, updateTask }: Props) {
-    const [mouseIsOver, setMouseIsOver] = useState(false);
     const [editMode, setEditMode] = useState(false);
 
     const {
@@ -37,7 +36,6 @@ function TaskCard({ task, deleteTask, updateTask }: Props) {
 
     const toggleEditMode = () => {
         setEditMode((prev) => !prev);
-        setMouseIsOver(false);
     };
 
     if (isDragging) {
@@ -83,8 +81,6 @@ function TaskCard({ task, deleteTask, updateTask }: Props) {
             {...listeners}
             onClick={toggleEditMode}
             className="task-card"
-            onMouseEnter={() => setMouseIsOver(true)}
-            onMouseLeave={() => setMouseIsOver(false)}
         >
             <div style={{ whiteSpace: "pre-wrap" }}>
                 {task.content || "Untitled Task"}
