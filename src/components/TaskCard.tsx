@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Trash2 } from "lucide-react";
@@ -10,34 +10,30 @@ interface Props {
     updateTask: (id: Id, content: string) => void;
 }
 
-function TaskCard({ task, deleteTask, updateTask }: Props) {
-    const [editMode, setEditMode] = useState(false);
 
-    const {
-        setNodeRef,
-        attributes,
-        listeners,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({
-        id: task.id,
-        data: {
-            type: "Task",
-            task,
-        },
-        disabled: editMode,
-    });
-
-    const style = {
-        transition,
-        transform: CSS.Transform.toString(transform),
-    };
-
-    const toggleEditMode = () => {
-        setEditMode((prev) => !prev);
-    };
-
+export function TaskCardContent({
+    task,
+    deleteTask,
+    updateTask,
+    style,
+    attributes,
+    listeners,
+    setNodeRef,
+    isDragging,
+    editMode,
+    toggleEditMode,
+}: {
+    task: Task;
+    deleteTask: (id: Id) => void;
+    updateTask: (id: Id, content: string) => void;
+    style?: React.CSSProperties;
+    attributes?: any;
+    listeners?: any;
+    setNodeRef?: (node: HTMLElement | null) => void;
+    isDragging?: boolean;
+    editMode?: boolean;
+    toggleEditMode?: () => void;
+}) {
     if (isDragging) {
         return (
             <div
@@ -48,7 +44,7 @@ function TaskCard({ task, deleteTask, updateTask }: Props) {
         );
     }
 
-    if (editMode) {
+    if (editMode && toggleEditMode) {
         return (
             <div
                 ref={setNodeRef}
@@ -97,6 +93,52 @@ function TaskCard({ task, deleteTask, updateTask }: Props) {
                 <Trash2 size={18} />
             </button>
         </div>
+    );
+}
+
+function TaskCard({ task, deleteTask, updateTask }: Props) {
+    const [editMode, setEditMode] = useState(false);
+
+    const sortableData = useMemo(() => ({
+        type: "Task",
+        task,
+    }), [task]);
+
+    const {
+        setNodeRef,
+        attributes,
+        listeners,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({
+        id: task.id,
+        data: sortableData,
+        disabled: editMode,
+    });
+
+    const style = {
+        transition,
+        transform: CSS.Translate.toString(transform),
+    };
+
+    const toggleEditMode = () => {
+        setEditMode((prev) => !prev);
+    };
+
+    return (
+        <TaskCardContent
+            task={task}
+            deleteTask={deleteTask}
+            updateTask={updateTask}
+            style={style}
+            attributes={attributes}
+            listeners={listeners}
+            setNodeRef={setNodeRef}
+            isDragging={isDragging}
+            editMode={editMode}
+            toggleEditMode={toggleEditMode}
+        />
     );
 }
 

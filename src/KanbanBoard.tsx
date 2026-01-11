@@ -14,7 +14,7 @@ import {
 import { sortableKeyboardCoordinates, arrayMove } from "@dnd-kit/sortable";
 import { v4 as uuidv4 } from "uuid";
 import ColumnContainer from "./components/ColumnContainer";
-import TaskCard from "./components/TaskCard";
+import { TaskCardContent } from "./components/TaskCard";
 import type { Column, Task, Id } from "./types";
 import "./KanbanBoard.css";
 
@@ -95,6 +95,7 @@ function KanbanBoard() {
                 const overIndex = tasks.findIndex((t) => t.id === overId);
 
                 if (tasks[activeIndex].columnId !== tasks[overIndex].columnId) {
+                    // Fix: Move task to new column
                     const newTasks = [...tasks];
                     newTasks[activeIndex] = {
                         ...newTasks[activeIndex],
@@ -107,9 +108,7 @@ function KanbanBoard() {
             });
         }
 
-        const isOverColumn =
-            over.data.current?.type === "Column" ||
-            columns.some((c) => c.id === overId);
+        const isOverColumn = over.data.current?.type === "Column";
 
         // Dropping a Task over a Column
         if (isActiveTask && isOverColumn) {
@@ -130,6 +129,7 @@ function KanbanBoard() {
 
     function onDragEnd(event: DragEndEvent) {
         setActiveTask(null);
+
         const { active, over } = event;
         if (!over) return;
 
@@ -138,8 +138,27 @@ function KanbanBoard() {
 
         if (activeId === overId) return;
 
-        // Logic for reordering within same column is handled in dragOver mostly,
-        // but dragEnd ensures final state consistency.
+        const isActiveTask = active.data.current?.type === "Task";
+        const isOverTask = over.data.current?.type === "Task";
+
+        if (isActiveTask && isOverTask) {
+            setTasks((tasks) => {
+                const activeIndex = tasks.findIndex((t) => t.id === activeId);
+                const overIndex = tasks.findIndex((t) => t.id === overId);
+
+                if (tasks[activeIndex].columnId !== tasks[overIndex].columnId) {
+                    // This case should be handled by onDragOver mostly, but as a fallback/finalizer
+                    const newTasks = [...tasks];
+                    newTasks[activeIndex] = {
+                        ...newTasks[activeIndex],
+                        columnId: newTasks[overIndex].columnId
+                    };
+                    return arrayMove(newTasks, activeIndex, overIndex);
+                }
+
+                return arrayMove(tasks, activeIndex, overIndex);
+            });
+        }
     }
 
     return (
@@ -167,7 +186,7 @@ function KanbanBoard() {
                 {createPortal(
                     <DragOverlay>
                         {activeTask && (
-                            <TaskCard
+                            <TaskCardContent
                                 task={activeTask}
                                 deleteTask={deleteTask}
                                 updateTask={updateTask}
