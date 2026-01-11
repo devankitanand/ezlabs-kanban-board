@@ -1,0 +1,183 @@
+.kanban-board {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 40px;
+    overflow-x: auto;
+    min-height: 100vh;
+    /* Remove align-items: center to avoid clipping on overflow */
+}
+
+.kanban-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin: 0 auto 20px;
+    /* Center title block if it doesn't take full width, or text-align if it does */
+    text-align: center;
+    width: 100%;
+}
+
+/* Ensure the columns container is centered but safe for scrolling */
+.kanban-columns {
+    margin: 0 auto;
+    min-width: min-content;
+    /* Ensure it takes at least the space it needs */
+}
+
+@media (max-width: 768px) {
+    .kanban-board {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 20px;
+    }
+}
+
+/* Column */
+.kanban-column {
+    background-color: var(--column-bg);
+    border-radius: 12px;
+    width: 350px;
+    min-width: 350px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    max-height: 80vh;
+    /* Makes column scrollable if many tasks */
+}
+
+@media (max-width: 768px) {
+    .kanban-column {
+        width: 100%;
+        min-width: 0;
+        margin-bottom: 20px;
+    }
+}
+
+.column-header {
+    padding: 16px 20px;
+    border-bottom: 2px solid var(--bg-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.column-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.task-count {
+    background-color: var(--bg-color);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.column-content {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 100px;
+    /* Drop zone area */
+}
+
+/* Add Button */
+.add-task-btn {
+    margin: 0 20px 20px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: transparent;
+    color: var(--text-secondary);
+    border: 2px dashed var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.add-task-btn:hover {
+    background-color: #f9fafb;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* Task Card */
+.task-card {
+    background-color: white;
+    /* or a slightly different shade if column is white */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    cursor: grab;
+    position: relative;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s, transform 0.2s;
+    touch-action: none;
+    /* Required for DnD on touch devices */
+}
+
+.task-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-color: #d1d5db;
+}
+
+.task-card.dragging {
+    opacity: 0.5;
+    border: 1px dashed var(--primary-color);
+    box-shadow: none;
+}
+
+.task-card textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    resize: none;
+    font-size: 1rem;
+    outline: none;
+    color: var(--text-primary);
+    min-height: 24px;
+}
+
+.task-card textarea:focus {
+    /* Provide some visual que it's editing */
+}
+
+.delete-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    opacity: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    transition: opacity 0.2s, color 0.2s;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.task-card:hover .delete-btn {
+    opacity: 1;
+}
+
+.delete-btn:hover {
+    color: var(--danger-color);
+    background-color: #fee2e2;
+}
+
+/* Overlay style (when dragging) */
+.task-card-overlay {
+    background-color: white;
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: scale(1.05);
+    cursor: grabbing;
+}
